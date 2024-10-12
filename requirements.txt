@@ -1,0 +1,10 @@
+numpy
+pandas
+matplotlib
+scipy
+jupyter
+opencv-python
+redis 
+streamlit
+streamlit-webrtc
+insightface
