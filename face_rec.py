@@ -2,24 +2,24 @@ from insightface.app import FaceAnalysis
 import numpy as np
 import pandas as pd
 import cv2
-
 import redis
-
-#insight face
-
 from sklearn.metrics import pairwise
-#time
 import time
 from datetime import datetime
 import os
-#connect to Redis Client
-hostname='redis-18068.c61.us-east-1-3.ec2.redns.redis-cloud.com'
-portnumber=18068
-password='seHLbQiGpJ7RLSEkKzN8QQ9FxGB4oo9y'
+from dotenv import load_dotenv
 
-r=redis.StrictRedis(host=hostname,
-                    port=portnumber,
-                    password=password)
+# Load environment variables from .env file
+load_dotenv()
+
+# Connect to Redis Client using environment variables (never hardcode secrets!)
+hostname = os.getenv('REDIS_HOST')
+portnumber = int(os.getenv('REDIS_PORT'))
+password = os.getenv('REDIS_PASSWORD')
+
+r = redis.StrictRedis(host=hostname,
+                      port=portnumber,
+                      password=password)
 
 #retrive data from database
 def retrieve_data(name):

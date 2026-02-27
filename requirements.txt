@@ -8,3 +8,5 @@ redis
 streamlit
 streamlit-webrtc
 insightface
+python-dotenv
+scikit-learn
