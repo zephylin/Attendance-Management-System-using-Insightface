@@ -1,3 +1,4 @@
+import logging
 import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 from Home import face_rec
@@ -6,6 +7,8 @@ st.subheader('Real-Time Attendance System')
 
 import av
 import time
+
+logger = logging.getLogger('face_rec.prediction')
 
 
 
@@ -41,7 +44,7 @@ def video_frame_callback(frame):
     if difftime >= waitTime:
         realtimepred.saveLogs_redis()
         setTime = time.time() # reset time        
-        print('Save Data to redis database')
+        logger.info('Attendance logs saved to Redis database')
 
     return av.VideoFrame.from_ndarray(pred_img, format="bgr24")
 

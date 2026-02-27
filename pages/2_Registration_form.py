@@ -44,6 +44,9 @@ if st.button('Submit'):
         st.success(f"{person_id}  registered successfully")
     elif return_val=='id_name_false':
         st.error('Please enter the name: Name can not be empty or spaces')
-
     elif return_val=='file_false':
         st.error('Face_embedding.txt not found, Please refresh and execute page again')
+    elif return_val=='redis_error':
+        st.error('Database error: Could not save registration. Please try again later.')
+    elif return_val=='registration_error':
+        st.error('An unexpected error occurred during registration. Please try again.')

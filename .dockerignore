@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Environment secrets (injected at runtime, not baked into image)
+.env
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+
+# Tests (not needed in production image)
+tests/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.py
+
+# Documentation
+README.md
+LICENSE

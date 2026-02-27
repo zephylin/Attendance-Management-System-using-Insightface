@@ -10,3 +10,5 @@ streamlit-webrtc
 insightface
 python-dotenv
 scikit-learn
+pytest
+flake8

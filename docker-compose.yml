@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  attendance-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: attendance-system
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # Mount model files from host (avoids baking large files into image)
+      - ./insightface_model:/app/insightface_model:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
