@@ -26,28 +26,39 @@ hostname = os.getenv('REDIS_HOST')
 portnumber = os.getenv('REDIS_PORT')
 password = os.getenv('REDIS_PASSWORD')
 
-if not all([hostname, portnumber, password]):
-    logger.error('Missing Redis environment variables. Check your .env file.')
-    raise EnvironmentError('REDIS_HOST, REDIS_PORT, and REDIS_PASSWORD must be set in .env')
+# Track connection state so pages can show appropriate UI
+r: redis.StrictRedis | None = None
+redis_connected: bool = False
+redis_error_msg: str = ''
 
-try:
-    portnumber = int(portnumber)
-    logger.info('Connecting to Redis database at %s:%s', hostname, portnumber)
-    r = redis.StrictRedis(host=hostname,
-                          port=portnumber,
-                          password=password)
-    # Test the connection (StrictRedis is lazy — this forces a real connection)
-    r.ping()
-    logger.info('Redis connection established successfully')
-except redis.ConnectionError as e:
-    logger.error('Failed to connect to Redis: %s', e)
-    raise
-except ValueError:
-    logger.error('REDIS_PORT must be a valid integer, got: %s', os.getenv('REDIS_PORT'))
-    raise
+if not all([hostname, portnumber, password]):
+    redis_error_msg = 'Missing Redis environment variables. Check your .env file.'
+    logger.error(redis_error_msg)
+else:
+    try:
+        portnumber = int(portnumber)
+        logger.info('Connecting to Redis database at %s:%s', hostname, portnumber)
+        r = redis.StrictRedis(host=hostname,
+                              port=portnumber,
+                              password=password)
+        # Test the connection (StrictRedis is lazy — this forces a real connection)
+        r.ping()
+        redis_connected = True
+        logger.info('Redis connection established successfully')
+    except redis.ConnectionError as e:
+        redis_error_msg = f'Failed to connect to Redis: {e}'
+        logger.error(redis_error_msg)
+        r = None
+    except ValueError:
+        redis_error_msg = f'REDIS_PORT must be a valid integer, got: {os.getenv("REDIS_PORT")}'
+        logger.error(redis_error_msg)
+        r = None
 
 #retrive data from database
 def retrieve_data(name: str) -> pd.DataFrame:
+    if not redis_connected or r is None:
+        logger.error('Cannot retrieve data: Redis is not connected')
+        return pd.DataFrame(columns=['id_name_country','Facial Features','ID','Name','Country'])
     try:
         logger.info('Retrieving data from Redis key: %s', name)
         retrieve_dict=r.hgetall(name)
@@ -139,6 +150,9 @@ class RealTimePred:
                     encoded_data.append(concat_string)
                     
             if len(encoded_data) >0:
+                if not redis_connected or r is None:
+                    logger.error('Cannot save logs: Redis is not connected')
+                    return
                 r.lpush('attendance:logs',*encoded_data)
                 logger.info('Saved %d attendance log(s) to Redis', len(encoded_data))
         except redis.RedisError as e:
@@ -238,6 +252,9 @@ class RegistrationForm:
             x_mean_bytes=x_mean.tobytes()
 
             #step4: save into redis database
+            if not redis_connected or r is None:
+                logger.error('Cannot register: Redis is not connected')
+                return 'redis_error'
             #redis hashes
             r.hset(name='kdu_students:register',key=key,value=x_mean_bytes)
             logger.info('Registered new user: %s (ID: %s, Country: %s)', name, id, country)

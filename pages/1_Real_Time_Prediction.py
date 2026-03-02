@@ -10,7 +10,10 @@ import time
 
 logger = logging.getLogger('face_rec.prediction')
 
-
+if not face_rec.redis_connected:
+    st.error('Redis is not connected. Real-time attendance tracking is unavailable.')
+    st.info('Please check your `.env` file and ensure your Redis instance is active, then refresh.')
+    st.stop()
 
 
 #retrieve data from redis

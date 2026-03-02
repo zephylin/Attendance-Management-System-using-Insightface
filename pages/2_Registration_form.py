@@ -8,6 +8,12 @@ import av
 st.set_page_config(page_title='Registration Form',layout='centered')
 
 st.subheader('Registration Form')
+
+if not face_rec.redis_connected:
+    st.error('Redis is not connected. Registration is unavailable.')
+    st.info('Please check your `.env` file and ensure your Redis instance is active, then refresh.')
+    st.stop()
+
 #init 
 registration_form=face_rec.RegistrationForm()
 #step 1: collect person ID, name and country

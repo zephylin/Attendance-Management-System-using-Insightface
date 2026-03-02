@@ -7,6 +7,11 @@ from Home import face_rec
 
 st.subheader('Reporting')
 
+if not face_rec.redis_connected:
+    st.error('Redis is not connected. Reports are unavailable.')
+    st.info('Please check your `.env` file and ensure your Redis instance is active, then refresh.')
+    st.stop()
+
 LOGS_KEY = 'attendance:logs'
 
 
